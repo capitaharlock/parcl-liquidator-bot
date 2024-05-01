@@ -2,7 +2,7 @@ import * as anchor from '@project-serum/anchor';
 import { PublicKey, SystemProgram, Keypair } from '@solana/web3.js';
 import { readFileSync } from 'fs';
 import { homedir } from 'os';
-import { Parcl } from '../target/types/parcl';
+import { Parcl as ParclProgram }  from '../target/types/parcl';
 
 // Load local keypair
 function loadKeypair(path: string): Keypair {
@@ -19,7 +19,7 @@ const connection = new anchor.web3.Connection(clusterUrl);
 const walletKeyPair = loadKeypair(`${homedir()}/.config/solana/id.json`);
 const provider = new anchor.AnchorProvider(connection, new anchor.Wallet(walletKeyPair), { preflightCommitment: 'confirmed' });
 anchor.setProvider(provider);
-const program = new anchor.Program<Parcl>(idlJson, idlJson.metadata.address, provider);
+const program = new anchor.Program<ParclProgram>(idlJson, idlJson.metadata.address, provider);
 
 // Clone a margin account
 async function cloneMarginAccount(sourceAccountPubkey: string, seed: string) {

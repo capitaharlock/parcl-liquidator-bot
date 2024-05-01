@@ -25,3 +25,9 @@ pub enum ErrorCode {
     #[msg("Market ID is invalid.")]
     InvalidMarketId,
 }
+
+#[error_code]
+pub enum AuthError {
+    #[msg("Unauthorized attempt to access or modify margin account data")]
+    Unauthorized,
+}

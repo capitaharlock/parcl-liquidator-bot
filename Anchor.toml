@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-parcl = "EoMpzp7ZvyvbGWBNzWPTCxEfsEPYgiKkeAi6HiS4vWv3"
+parcl = "9zp54Krm3Sy5xT11ahDefb3LUszYhc5m8aDbYe9pMUVa"
 sample = "DsgNFTmio4Vfs14H4GEf4nTFnB6kTefUUuLduMzzqZEP"
 
 [registry]

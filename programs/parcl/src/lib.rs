@@ -8,7 +8,7 @@ pub mod state;
 
 use solana_security_txt::security_txt;
 
-declare_id!("EoMpzp7ZvyvbGWBNzWPTCxEfsEPYgiKkeAi6HiS4vWv3");
+declare_id!("9zp54Krm3Sy5xT11ahDefb3LUszYhc5m8aDbYe9pMUVa");
 
 security_txt! {
     // Required fields
@@ -32,5 +32,28 @@ pub mod parcl {
     // Simulator | clone a margin account
     pub fn clone_margin_account_entry(ctx: Context<CloneMarginAccountContext>) -> Result<()> {
         instructions::clone_margin_account(ctx)
+    }
+
+    // Simulator | create margin account
+    pub fn set_margin_account(
+        ctx: Context<SetMarginAccountContext>,
+        id: u32,
+        positions: Vec<Position>,
+    ) -> Result<()> {
+        instructions::set_margin_account(ctx, id, positions)
+    }
+
+    // Simulator | modify margin account
+    pub fn put_margin_account(
+        ctx: Context<PutMarginAccountContext>,
+        id: u32,
+        positions: Vec<Position>,
+    ) -> Result<()> {
+        instructions::put_margin_account(ctx, id, positions)
+    }
+
+    // Simulator | close margin account
+    pub fn delete_margin_account(ctx: Context<DeleteMarginAccountContext>, id: u32) -> Result<()> {
+        instructions::delete_margin_account(ctx, id)
     }
 }
