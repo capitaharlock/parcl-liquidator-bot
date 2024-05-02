@@ -54,15 +54,15 @@ fn calculate_margin_requirement(position: &Position) -> u64 {
     let current_market_price: i128 = 0; // RJJ-TODO Read price from pyth | market_id here, needed price_feed account
 
     // RJJ-TODO | dev
-    let initialRatio = 0; // RJJ-TODO get from MarketSettings
-    let minPositionMargin = 0; // RJJ-TODO get from MarketSettings
-    let maintenanceRatio = 0; // RJJ-TODO check MarketSettings > maintenance_margin_proportion
-    let liquidationFeeRate = 0; // RJJ-TODO get from MarketSettings
+    let initial_ratio = 0; // RJJ-TODO get from MarketSettings
+    let min_position_margin = 0; // RJJ-TODO get from MarketSettings
+    let maintenance_ratio = 0; // RJJ-TODO check MarketSettings > maintenance_margin_proportion
+    let liquidation_fee_rate = 0; // RJJ-TODO get from MarketSettings
 
-    let positionNotional = position.size * current_market_price;
-    let initialMargin: i128 = (positionNotional * initialRatio) + minPositionMargin;
-    let maintenanceMargin: i128 = (positionNotional * maintenanceRatio) + minPositionMargin;
-    let liquidationFeeMargin: i128 = positionNotional * liquidationFeeRate;
+    let position_notional = position.size * current_market_price;
+    let _initial_margin: i128 = (position_notional * initial_ratio) + min_position_margin;
+    let _maintenance_margin: i128 = (position_notional * maintenance_ratio) + min_position_margin;
+    let _liquidation_fee_margin: i128 = position_notional * liquidation_fee_rate;
 
     // Evaluate
     0

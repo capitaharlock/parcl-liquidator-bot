@@ -8,7 +8,7 @@ pub mod state;
 
 use solana_security_txt::security_txt;
 
-declare_id!("9zp54Krm3Sy5xT11ahDefb3LUszYhc5m8aDbYe9pMUVa");
+declare_id!("7tymZxRUuwEqAsqmhs4BaCG4PXhTN8DfSeYAsoLboc4r");
 
 security_txt! {
     // Required fields
@@ -39,17 +39,41 @@ pub mod parcl {
         ctx: Context<SetMarginAccountContext>,
         id: u32,
         positions: Vec<Position>,
+        margin: u64,
+        max_liquidation_fee: u64,
+        exchange: Pubkey,
+        delegate: Pubkey,
+        in_liquidation: u8,
     ) -> Result<()> {
-        instructions::set_margin_account(ctx, id, positions)
+        instructions::set_margin_account(
+            ctx,
+            id,
+            positions,
+            margin,
+            max_liquidation_fee,
+            exchange,
+            delegate,
+            in_liquidation,
+        )
     }
 
     // Simulator | modify margin account
     pub fn put_margin_account(
         ctx: Context<PutMarginAccountContext>,
         id: u32,
-        positions: Vec<Position>,
+        positions: Option<Vec<Position>>,
+        margin: Option<u64>,
+        max_liquidation_fee: Option<u64>,
+        in_liquidation: Option<u8>,
     ) -> Result<()> {
-        instructions::put_margin_account(ctx, id, positions)
+        instructions::put_margin_account(
+            ctx,
+            id,
+            positions,
+            margin,
+            max_liquidation_fee,
+            in_liquidation,
+        )
     }
 
     // Simulator | close margin account

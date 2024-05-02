@@ -1,7 +1,7 @@
 use crate::state::margin_account::MarginAccount;
 use crate::state::market::Market;
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, Transfer};
+use anchor_spl::token::{Token, TokenAccount};
 
 pub fn liquidate_positions(ctx: Context<LiquidateContext>) -> Result<()> {
     let positions = &mut ctx.accounts.margin_account.positions;
@@ -11,7 +11,7 @@ pub fn liquidate_positions(ctx: Context<LiquidateContext>) -> Result<()> {
 
     // Close positions
     for position in positions.iter() {
-        let market_value = market_price * position.size.abs() as i128;
+        let _market_value = market_price * position.size.abs() as i128;
 
         // RJJ Transfer LP tokens (review doc liquidation on-chain circut)
 

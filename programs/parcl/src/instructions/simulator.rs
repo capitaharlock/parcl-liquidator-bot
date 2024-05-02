@@ -67,9 +67,24 @@ pub fn set_margin_account<'info>(
     ctx: Context<SetMarginAccountContext<'info>>,
     id: u32,
     positions: Vec<Position>,
+    margin: u64,
+    max_liquidation_fee: u64,
+    exchange: Pubkey,
+    delegate: Pubkey,
+    in_liquidation: u8,
 ) -> Result<()> {
     let margin_account = &mut ctx.accounts.margin_account;
+    let user = &ctx.accounts.user.key();
+
+    // Save data
+    margin_account.id = id;
     margin_account.positions = positions;
+    margin_account.margin = margin;
+    margin_account.max_liquidation_fee = max_liquidation_fee;
+    margin_account.exchange = exchange;
+    margin_account.delegate = delegate;
+    margin_account.in_liquidation = in_liquidation;
+    margin_account.owner = *user;
 
     Ok(())
 }
@@ -79,12 +94,12 @@ pub fn set_margin_account<'info>(
 pub struct SetMarginAccountContext<'info> {
     #[account(
         init,
-        payer = owner,
+        payer = user,
         space = 8 + 756, // data + 13 positions (add more in case that more postions are needed in a near future)
         seeds = [
             b"margin_account",
             exchange.key().as_ref(),
-            owner.key().as_ref(),
+            user.key().as_ref(),
             &id.to_le_bytes(),
         ],
         bump,
@@ -93,7 +108,7 @@ pub struct SetMarginAccountContext<'info> {
     /// CHECK: exchange address as seed only
     exchange: AccountInfo<'info>,
     #[account(mut)]
-    pub owner: Signer<'info>,
+    pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 
@@ -101,17 +116,40 @@ pub struct SetMarginAccountContext<'info> {
 pub fn put_margin_account<'info>(
     ctx: Context<PutMarginAccountContext<'info>>,
     id: u32,
-    positions: Vec<Position>,
+    positions: Option<Vec<Position>>,
+    margin: Option<u64>,
+    max_liquidation_fee: Option<u64>,
+    in_liquidation: Option<u8>,
 ) -> Result<()> {
-    let signer_key = ctx.accounts.owner.key();
+    let user = ctx.accounts.user.key();
     let margin_account = &mut ctx.accounts.margin_account;
+
     // Security - testing here mods allowed by a delegate signer or owner
     require!(
-        signer_key == margin_account.owner || signer_key == margin_account.delegate,
+        user == margin_account.owner || user == margin_account.delegate,
         AuthError::Unauthorized
     );
+
+    /*
+    Positions and margin management
+    - Reducing margin -> return collateral
+    - Clean positions (use flag)
+    - Move margin login to another fn
+    */
+
     // Save data
-    margin_account.positions = positions;
+    if let Some(positions) = positions {
+        margin_account.positions = positions;
+    }
+    if let Some(margin) = margin {
+        margin_account.margin = margin;
+    }
+    if let Some(max_liquidation_fee) = max_liquidation_fee {
+        margin_account.max_liquidation_fee = max_liquidation_fee;
+    }
+    if let Some(in_liquidation) = in_liquidation {
+        margin_account.in_liquidation = in_liquidation;
+    }
 
     Ok(())
 }
@@ -121,11 +159,10 @@ pub fn put_margin_account<'info>(
 pub struct PutMarginAccountContext<'info> {
     #[account(
         mut,
-        has_one = owner,
         seeds = [
             b"margin_account",
             exchange.key().as_ref(),
-            owner.key().as_ref(),
+            user.key().as_ref(),
             &id.to_le_bytes(),
         ],
         bump,
@@ -134,16 +171,23 @@ pub struct PutMarginAccountContext<'info> {
     /// CHECK: exchange address as seed only
     exchange: AccountInfo<'info>,
     #[account(mut)]
-    owner: Signer<'info>,
+    user: Signer<'info>,
     system_program: Program<'info, System>,
 }
 
 // Close margin account
 pub fn delete_margin_account<'info>(
     ctx: Context<DeleteMarginAccountContext<'info>>,
-    id: u32,
+    _id: u32,
 ) -> Result<()> {
+    let user = ctx.accounts.user.key();
     let margin_account = &mut ctx.accounts.margin_account;
+
+    // Security - testing here mods allowed by a delegate signer or owner
+    require!(
+        user == margin_account.owner || user == margin_account.delegate,
+        AuthError::Unauthorized
+    );
 
     // Return margin to the user
 
@@ -158,21 +202,20 @@ pub fn delete_margin_account<'info>(
 pub struct DeleteMarginAccountContext<'info> {
     #[account(
         mut,
-        has_one = owner,
         seeds = [
             b"margin_account",
             exchange.key().as_ref(),
-            owner.key().as_ref(),
+            user.key().as_ref(),
             &id.to_le_bytes(),
         ],
         bump,
-        close = owner,
+        close = user,
     )]
     pub margin_account: Account<'info, MarginAccount>,
     /// CHECK: exchange address as seed only
     exchange: AccountInfo<'info>,
     #[account(mut)]
-    owner: Signer<'info>,
+    user: Signer<'info>,
     system_program: Program<'info, System>,
 }
 
